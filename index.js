@@ -10,19 +10,31 @@ const express = require('express');
 const { Provider } = require('oidc-provider');
 
 // LOCAL IMPORTS
-const { DB_NAME, DB_URI, MONGODB_SERVER } = require('./lib/constants');
+const { DB_URI } = require('./lib/constants');
 const MongoAdapter = require('./lib/mongodb');
-const { MongooseHelper } = require('./lib/helpers');
 const interactionsRoutes = require('./lib/routes');
-import passwordGrant from './config/passwordGrant';
+const passwordGrant = require('./lib/passwordGrant');
 
-import oidcConfig from './config/oidc-config';
+const oidcConfig = require('./lib/config');
 
 const { PORT = 3000, ISSUER = `http://localhost:${PORT}` } = process.env;
 
 // MONGOOSE CONNECT
-MongooseHelper.connect(DB_URI(MONGODB_SERVER, DB_NAME));
-
+const mongoose = require('mongoose');
+mongoose
+	.connect(DB_URI, {
+		useNewUrlParser: true,
+		useFindAndModify: false,
+		useCreateIndex: true,
+		useUnifiedTopology: true
+	})
+	.then(() => {
+		console.log('MongoDB Successfully Connected');
+		mongoose.Promise = global.Promise;
+	})
+	.catch(e => {
+		console.log('FAILED MONGOOSE', e);
+	});
 // EXPRESS CONFIG
 const app = express();
 app.use(helmet());
@@ -44,7 +56,7 @@ let server = Server;
 	passwordGrant(provider);
 
 	if (process.env.NODE_ENV === 'production') {
-		logger.debug('Production');
+		// logger.debug('Production');
 
 		app.enable('trust proxy');
 		provider.proxy = true;
@@ -75,10 +87,10 @@ let server = Server;
 	app.use(provider.callback);
 
 	server = app.listen(PORT, () => {
-		logger.info(`OIDC app is listening on port ${PORT}, check its /.well-known/openid-configuration`);
+		console.log(`OIDC app is listening on port ${PORT}, check its /.well-known/openid-configuration`);
 	});
 })().catch(err => {
 	if (server && server.listening) server.close();
-	logger.error(err);
+	console.error(err);
 	process.exitCode = 1;
 });
