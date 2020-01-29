@@ -1,28 +1,35 @@
-import { pick } from 'lodash';
-import { ObjectID } from 'mongodb';
-import * as bcrypt from 'bcryptjs';
-import { Schema, model as mongooseModel } from 'mongoose';
+const bcrypt = require('bcryptjs');
+const { pick } = require('lodash');
+const { ObjectID } = require('mongodb');
+const { Schema, model } = require('mongoose');
+
+const mongooseModel = model;
 
 const schema = new Schema({
-	username: String,
-	first_name: String,
-	last_name: String,
-	birthdate: Date,
-	profile_picture: String,
-	email: {
+	username: {
 		type: String,
-		required: true,
-		minlength: 1,
-		trim: true,
-		unique: true
-	},
-	email_verified: {
-		type: Boolean,
-		default: false
+		unique: true,
+		index: true,
+		required: [true, 'Username must not be empty!'],
+		trim: true
 	},
 	password: {
 		type: String,
-		minlength: 6
+		required: [true, 'Password must not be empty!']
+	},
+	// Meta Data
+	first_name: {
+		type: String,
+		required: [true, 'First Name must not be empty!']
+	},
+	last_name: {
+		type: String,
+		required: [true, 'Last Name must not be empty!']
+	},
+	birthdate: Date,
+	email_verified: {
+		type: Boolean,
+		default: false
 	},
 	federation: {
 		id: String,
@@ -35,9 +42,11 @@ const schema = new Schema({
 		type: Boolean,
 		default: false
 	},
-	roles: [ObjectID],
+	projects: [ObjectID],
 	logins: [String]
 });
+
+schema.virtual('account').get(function() {});
 
 schema.pre('save', function(next) {
 	const user = this;
@@ -62,17 +71,17 @@ schema.pre('save', function(next) {
 	}
 });
 
-schema.virtual('accountId').get(function(this) {
+schema.virtual('accountId').get(function() {
 	return this._id.toString();
 });
 
-schema.virtual('id').get(function(this) {
+schema.virtual('id').get(function() {
 	return this._id.toString();
 });
 
 schema.methods.toJSON = function() {
-	var user = this;
-	var userObject = user.toObject();
+	const user = this;
+	const userObject = user.toObject();
 
 	return pick(userObject, ['_id', 'email']);
 };
@@ -85,10 +94,8 @@ schema.methods.claims = function() {
 	});
 };
 
-export let UserSchema = mongooseModel > ('User', schema);
-
-// MODEL
-export class UserModel {
+const UserSchema = mongooseModel('User', schema);
+const UserModel = class UserModel {
 	constructor(userModel) {
 		this._userModel = userModel;
 	}
@@ -182,6 +189,7 @@ export class UserModel {
 			const account = UserModel.getAccount(user);
 			return account;
 		} catch (e) {
+			console.log(e)
 			throw new Error(e);
 		}
 	}
@@ -205,14 +213,14 @@ export class UserModel {
 	static async findByFederated(provider, claims) {
 		const id = `${provider}.${claims.sub}`;
 		// if (!logins.get(id)) {
-		//     logins.set(id, new Account(id, claims));
+		// 	logins.set(id, new Account(id, claims));
 		// }
 		// return logins.get(id);
 	}
 
 	static async findByLogin(login) {
 		try {
-			const users = await UserSchema.find({ email: login });
+			const users = await UserSchema.find({ username: login });
 			if (!users || users.length !== 1) throw new Error('User not found');
 			const user = users[0];
 			const account = UserModel.getAccount(user);
@@ -225,7 +233,7 @@ export class UserModel {
 	static getAccount(user) {
 		const account = {
 			accountId: user.id,
-			claims: (use, scope, claims) => {
+			claims: (use, scope, claims, rejected) => {
 				const claimsKeys = Object.keys(claims).filter(key => !rejected.includes(key));
 				const accountClaims = {
 					sub: user.id
@@ -241,6 +249,9 @@ export class UserModel {
 		};
 		return account;
 	}
-}
+};
 
-Object.seal(UserModel);
+module.exports = {
+	UserSchema,
+	UserModel
+};
