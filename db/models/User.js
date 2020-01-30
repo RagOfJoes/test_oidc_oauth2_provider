@@ -89,9 +89,15 @@ schema.methods.toJSON = function() {
 // claims() should return or resolve with an object with claims that are mapped 1:1 to
 // what your OP supports, oidc-provider will cherry-pick the requested ones automatically
 schema.methods.claims = function() {
-	return Object.assign({}, this._doc, {
-		sub: this._id.toString()
-	});
+	if (this._doc) {
+		return Object.assign({}, this._doc, {
+			sub: this._id.toString(),
+			email: this.username,
+			first_name: this.first_name,
+			last_name: this.last_name,
+			projects: this.projects
+		});
+	}
 };
 
 const UserSchema = mongooseModel('User', schema);
@@ -117,7 +123,7 @@ const UserModel = class UserModel {
 	}
 
 	get email() {
-		return this._userModel.email;
+		return this._userModel.username;
 	}
 
 	get birthdate() {
@@ -140,10 +146,14 @@ const UserModel = class UserModel {
 		return this._userModel.logins;
 	}
 
-	async claims(use, scope, claims, rejected) {
+	async claims(use, scope, claism, rejected) {
 		return Object.assign({}, this._userModel, {
 			sub: this._userModel.id
 		});
+	}
+
+	get username() {
+		return this._userModel.username;
 	}
 
 	static async createUser(email, password) {
@@ -186,10 +196,9 @@ const UserModel = class UserModel {
 		try {
 			const user = await UserSchema.findById(sub);
 			if (!user) throw new Error('User not found');
-			const account = UserModel.getAccount(user);
+			const account = UserModel.getAccount(user)
 			return account;
 		} catch (e) {
-			console.log(e)
 			throw new Error(e);
 		}
 	}
@@ -234,17 +243,18 @@ const UserModel = class UserModel {
 		const account = {
 			accountId: user.id,
 			claims: (use, scope, claims, rejected) => {
-				const claimsKeys = Object.keys(claims).filter(key => !rejected.includes(key));
+				const claimsKeys = Object.keys(claims).filter(key => !rejected.includes(key))
+
 				const accountClaims = {
 					sub: user.id
-				};
+				}
 				claimsKeys.map(key => {
 					const keyObject = claims[key];
-					if (keyObject) {
-						accountClaims[key] = keyObject.value || keyObject.values;
-					}
-				});
-				return accountClaims;
+
+					if(keyObject) accountClaims[key] = keyObject.value || keyObject.values;
+				})
+
+				return accountClaims
 			}
 		};
 		return account;
