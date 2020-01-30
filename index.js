@@ -19,22 +19,6 @@ const oidcConfig = require('./lib/config');
 
 const { PORT = 3000, ISSUER = `http://localhost:${PORT}` } = process.env;
 
-// MONGOOSE CONNECT
-const mongoose = require('mongoose');
-mongoose
-	.connect(DB_URI, {
-		useNewUrlParser: true,
-		useFindAndModify: false,
-		useCreateIndex: true,
-		useUnifiedTopology: true
-	})
-	.then(() => {
-		console.log('MongoDB Successfully Connected');
-		mongoose.Promise = global.Promise;
-	})
-	.catch(e => {
-		console.log('FAILED MONGOOSE', e);
-	});
 // EXPRESS CONFIG
 const app = express();
 app.use(helmet());
@@ -77,7 +61,7 @@ let server = Server;
 			} else {
 				res.status(400).json({
 					error: 'invalid_request',
-					error_description: 'do yourself a favor and only use https'
+					error_description: 'Must be accessed with HTTPS'
 				});
 			}
 		});
