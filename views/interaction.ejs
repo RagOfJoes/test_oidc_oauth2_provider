@@ -4,16 +4,16 @@
   
   <ul>
   <% if ([details.scopes.accepted, details.scopes.rejected, details.claims.accepted, details.claims.rejected].every(({ length }) => length === 0)) { %>
-    <li>this is a new authorization</li>
+    <li>New Authorization</li>
   <% } %>
   
   <% if ([details.scopes.new, details.claims.new].every(({ length }) => length === 0)) { %>
-    <li>the client is asking you to confirm previously given authorization</li>
+    <li><% client.clientName %> is asking you to confirm previously given authorization</li>
   <% } %>
   
   <% newScopes = new Set(details.scopes.new); newScopes.delete('openid'); newScopes.delete('offline_access') %>
   <% if (newScopes.size) { %>
-    <li>scopes:</li>
+    <li>Scopes:</li>
     <ul>
       <% newScopes.forEach((scope) => { %>
         <li><%= scope %></li>
@@ -21,9 +21,9 @@
     </ul>
   <% } %>
   
-  <% newClaims = new Set(details.claims.new); ['sub', 'sid', 'auth_time', 'acr', 'amr', 'iss'].forEach(Set.prototype.delete.bind(newClaims)) %>
+  <% newClaims = new Set(details.claims.new); ['sub', 'sid', 'auth_time', 'acr', 'amr', 'iss', 'username', 'first_name', 'last_name', 'join_date', 'projects'].forEach(Set.prototype.delete.bind(newClaims)) %>
   <% if (newClaims.size) { %>
-    <li>claims:</li>
+    <li>Claims:</li>
     <ul>
       <% newClaims.forEach((claim) => { %>
         <li><%= claim %></li>
