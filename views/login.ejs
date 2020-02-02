@@ -33,6 +33,9 @@
 </div>
 <% } %>
 <form autocomplete="off" action="/interaction/<%= uid %>/login" method="post">
+	<% if (flash) { %>
+			<p style="color: red;"><%= flash %> </p>
+	<% } %>
 	<input required type="text" name="login" placeholder="Enter username" <% if (!params.login_hint) { %>autofocus="on"<% } else { %> value="<%= params.login_hint %>" <% } %>>
 	<input required type="password" name="password" placeholder="Enter password" <% if (params.login_hint) { %>autofocus="on"<% } %>>
 
