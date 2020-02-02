@@ -1,62 +1,68 @@
 const bcrypt = require('bcryptjs');
 const { pick } = require('lodash');
-const { ObjectID } = require('mongodb');
 const { Schema, model } = require('mongoose');
 
-const mongooseModel = model;
-
 const schema = new Schema({
-	username: {
+	email: {
+		trim: true,
+		index: true,
 		type: String,
 		unique: true,
-		index: true,
-		required: [true, 'Username must not be empty!'],
-		trim: true
+		required: [true, 'Username must not be empty!']
+	},
+	email_verified: {
+		type: Boolean,
+		default: false
+	},
+	phone: {
+		type: String
+	},
+	phone_verified: {
+		type: Boolean,
+		default: false
 	},
 	password: {
 		type: String,
 		required: [true, 'Password must not be empty!']
 	},
 	// Meta Data
-	first_name: {
+	given_name: {
 		type: String,
 		required: [true, 'First Name must not be empty!']
 	},
-	last_name: {
+	family_name: {
 		type: String,
 		required: [true, 'Last Name must not be empty!']
 	},
+	middle_name: {
+		type: String
+	},
+	nickname: {
+		type: String
+	},
 	birthdate: Date,
-	email_verified: {
-		type: Boolean,
-		default: false
-	},
-	federation: {
-		id: String,
-		token: String,
-		tokenExpire: Date,
-		rtToken: String,
-		rtTokenExpire: Date
-	},
-	isFederated: {
-		type: Boolean,
-		default: false
-	},
-	projects: [ObjectID],
+	// Omit: Not yet supported
+	// federation: {
+	// 	id: String,
+	// 	token: String,
+	// 	tokenExpire: Date,
+	// 	rtToken: String,
+	// 	rtTokenExpire: Date
+	// },
+	// isFederated: {
+	// 	type: Boolean,
+	// 	default: false
+	// },
 	logins: [String]
 });
-
-schema.virtual('account').get(function() {});
 
 schema.pre('save', function(next) {
 	const user = this;
 
-	if (!user.isFederated && (!user.password || user.password.length < 6)) {
+	if (!user.password || user.password.length < 6) {
 		throw new Error('Password field is missing');
-	} else if (user.isFederated) {
-		next();
-		return;
 	}
+
 	if (user.isModified('password')) {
 		bcrypt.genSalt(10, (err, salt) => {
 			bcrypt.hash(user.password, salt, (err, hash) => {
@@ -79,84 +85,39 @@ schema.virtual('id').get(function() {
 	return this._id.toString();
 });
 
-schema.methods.toJSON = function() {
-	const user = this;
-	const userObject = user.toObject();
+schema.virtual('name').get(function() {
+	return this.given_name + ' ' + this.family_name;
+});
 
-	return pick(userObject, ['_id', 'email']);
-};
+schema.virtual('firstname').get(function() {
+	return this.given_name;
+});
 
-// claims() should return or resolve with an object with claims that are mapped 1:1 to
-// what your OP supports, oidc-provider will cherry-pick the requested ones automatically
-schema.methods.claims = function() {
-	if (this._doc) {
-		return Object.assign({}, this._doc, {
-			sub: this._id.toString(),
-			email: this.username,
-			first_name: this.first_name,
-			last_name: this.last_name,
-			projects: this.projects
-		});
+schema.virtual('lastname').get(function() {
+	return this.family_name;
+});
+
+schema.virtual('givenname').get(function() {
+	return this.given_name;
+});
+
+schema.virtual('familyname').get(function() {
+	return this.family_name;
+});
+
+schema.virtual('fullname').get(function() {
+	return this.given_name + ' ' + this.family_name;
+});
+
+schema.methods = {
+	toJSON: function() {
+		const user = this.toObject();
+		return pick(user, ['_id', 'email']);
 	}
 };
 
-const UserSchema = mongooseModel('User', schema);
-const UserModel = class UserModel {
-	constructor(userModel) {
-		this._userModel = userModel;
-	}
-
-	get id() {
-		return this._userModel.id;
-	}
-
-	get firstname() {
-		return this._userModel.first_name;
-	}
-
-	get lastname() {
-		return this._userModel.last_name;
-	}
-
-	get fullname() {
-		return this._userModel.full_name;
-	}
-
-	get email() {
-		return this._userModel.username;
-	}
-
-	get birthdate() {
-		return this._userModel.birthdate;
-	}
-
-	get emailVerified() {
-		return this._userModel.email_verified;
-	}
-
-	get password() {
-		return this._userModel.email;
-	}
-
-	get roles() {
-		return this._userModel.roles;
-	}
-
-	get logins() {
-		return this._userModel.logins;
-	}
-
-	async claims(use, scope, claism, rejected) {
-		return Object.assign({}, this._userModel, {
-			sub: this._userModel.id
-		});
-	}
-
-	get username() {
-		return this._userModel.username;
-	}
-
-	static async createUser(email, password) {
+schema.statics = {
+	createUser: async function(email, password) {
 		try {
 			const userInstance = new UserSchema({ email, password });
 			userInstance.save();
@@ -164,46 +125,49 @@ const UserModel = class UserModel {
 		} catch (e) {
 			throw new Error(e);
 		}
-	}
-
-	static async createByFederation(provider, data) {
+	},
+	getAccount: function(user) {
+		const account = {
+			accountId: user.id,
+			/**
+			 * Supported claims that can be outputted with a valid scope
+			 */
+			claims: (use, scope, claims, rejected) => {
+				return {
+					sub: user.id,
+					email: user.email,
+					email_verified: user.email_verified,
+					profile: {
+						sub: user.id,
+						name: user.name,
+						email: user.email,
+						given_name: user.given_name,
+						family_name: user.family_name
+					}
+				};
+			}
+		};
+		return account;
+	},
+	findByID: async function(ctx, id) {
 		try {
-			const userInstance = new UserSchema({ email: data.email });
-			userInstance.federation = {
-				id: `${provider}.${userInstance.id}`,
-				token: data.token,
-				tokenExpire: new Date(),
-				rtToken: data.refresh_token,
-				rtTokenExpire: new Date()
-			};
-			userInstance.save();
-			return userInstance.toJSON();
-		} catch (e) {
-			throw new Error(e);
-		}
-	}
-
-	static async findByID(ctx, id) {
-		try {
-			const user = await UserSchema.findById(id);
+			const user = await UserSchema.findById(id, '-password');
 			return user;
 		} catch (e) {
 			throw new Error(e);
 		}
-	}
-
-	static async findAccount(ctx, sub, token) {
+	},
+	findAccount: async function(ctx, sub, token) {
 		try {
-			const user = await UserSchema.findById(sub);
+			const user = await UserSchema.findById(sub, '-password');
 			if (!user) throw new Error('User not found');
-			const account = UserModel.getAccount(user)
+			const account = UserSchema.getAccount(user);
 			return account;
 		} catch (e) {
 			throw new Error(e);
 		}
-	}
-
-	static async findByCredentials(email, password) {
+	},
+	findByCredentials: async function(email, password) {
 		try {
 			const user = await UserSchema.findOne({ email });
 			if (!user) {
@@ -217,51 +181,20 @@ const UserModel = class UserModel {
 		} catch (e) {
 			throw new Error(e);
 		}
-	}
-
-	static async findByFederated(provider, claims) {
-		const id = `${provider}.${claims.sub}`;
-		// if (!logins.get(id)) {
-		// 	logins.set(id, new Account(id, claims));
-		// }
-		// return logins.get(id);
-	}
-
-	static async findByLogin(login) {
+	},
+	findByLogin: async function(login) {
 		try {
-			const users = await UserSchema.find({ username: login });
+			const users = await UserSchema.find({ email: login });
 			if (!users || users.length !== 1) throw new Error('User not found');
 			const user = users[0];
-			const account = UserModel.getAccount(user);
+			const account = UserSchema.getAccount(user);
 			return account;
 		} catch (e) {
 			throw new Error(e);
 		}
 	}
-
-	static getAccount(user) {
-		const account = {
-			accountId: user.id,
-			claims: (use, scope, claims, rejected) => {
-				const claimsKeys = Object.keys(claims).filter(key => !rejected.includes(key))
-
-				const accountClaims = {
-					sub: user.id
-				}
-				claimsKeys.map(key => {
-					const keyObject = claims[key];
-
-					if(keyObject) accountClaims[key] = keyObject.value || keyObject.values;
-				})
-
-				return accountClaims
-			}
-		};
-		return account;
-	}
 };
 
-module.exports = {
-	UserSchema,
-	UserModel
-};
+const UserSchema = model('User', schema);
+
+module.exports = UserSchema;
