@@ -5,16 +5,27 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 		<meta http-equiv="x-ua-compatible" content="ie=edge" />
 		<title><%= title %></title>
-		<style>@import url('https://fonts.googleapis.com/css?family=Roboto:400,100');</style>
+		<!-- Material Design CDN -->
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+		<link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet" />
+		<script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+
+		<!-- Load our own stylesheet after Material Design to overwrite certain styles -->
 		<link href="/stylesheets/css/index.css" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<div class="container">
-			<div class="login-card">
-				<h1><%= title %></h1>
+			<div class="card mdc-elevation--z4">
+				<img src="/images/logo.png" alt="Figure Logo" class="idp-logo" />
+
+				<div class="page-hints">
+					<h2><%= title %></h2>
+					<p>Use your Figure Account</p>
+				</div>
 				<%- body %>
 				<div class="login-help">
-					<a href="/interaction/<%= uid %>/abort">[ Cancel ]</a>
+					<!-- <a href="/interaction/<%= uid %>/abort">[ Cancel ]</a> -->
 					<% if (client.tosUri) { %>
 					<a href="<%= client.tosUri %>">[ Terms of Service ]</a>
 					<% } %> <% if (client.policyUri) { %>
@@ -49,5 +60,33 @@
 				</details>
 			</div>
 		</div>
+
+		<script text="text/javascript">
+			window.mdc.autoInit();
+
+			const state = {
+				showPassword: true
+			};
+			const showPasswordButton = document.querySelector('#show-password');
+
+			const clickShowPassword = () => {
+				if (state.showPassword) document.querySelector('input[name="password"]').type = 'text';
+				else document.querySelector('input[name="password"]').type = 'password';
+
+				state.showPassword = !state.showPassword;
+			};
+
+			// Prevent Submit onEnter
+			// Make sure this code gets executed after the DOM is loaded.
+			document.querySelector('.altSubmit').addEventListener('keyup', event => {
+				console.log('dsadas')
+				if (event.key !== 'Enter') return; // Use `.key` instead.
+				event.preventDefault(); // No need to `return false;`.
+			});
+			const altSubmit = e => {
+				console.log(e);
+				if (e.key === 'Enter') e.preventDefault();
+			};
+		</script>
 	</body>
 </html>
