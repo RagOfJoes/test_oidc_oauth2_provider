@@ -14,11 +14,7 @@
 					id="Shape"
 					fill="#FBBC05"
 				/>
-				<path
-					d="M361.7 151.1c5.8 32.7 4.5 66.8-4.7 98.8-8.5 29.3-24.6 56.5-47.1 77.2l-59.1-45.9c19.5-13.1 33.3-34.3 37.2-57.5H186.6c.1-24.2.1-48.4.1-72.6h175z"
-					id="Shape"
-					fill="#4285F4"
-				/>
+				<path d="M361.7 151.1c5.8 32.7 4.5 66.8-4.7 98.8-8.5 29.3-24.6 56.5-47.1 77.2l-59.1-45.9c19.5-13.1 33.3-34.3 37.2-57.5H186.6c.1-24.2.1-48.4.1-72.6h175z" id="Shape" fill="#4285F4" />
 				<path
 					d="M81.4 222.2c7.8 22.9 22.8 43.2 42.6 57.1 12.4 8.7 26.6 14.9 41.4 17.9 14.6 3 29.7 2.6 44.4.1 14.6-2.6 28.7-7.9 41-16.2l59.1 45.9c-21.3 19.7-48 33.1-76.2 39.6-31.2 7.1-64.2 7.3-95.2-1-24.6-6.5-47.7-18.2-67.6-34.1-20.9-16.6-38.3-38-50.4-62 20.3-15.7 40.6-31.5 60.9-47.3z"
 					fill="#34A853"
@@ -34,14 +30,60 @@
 <% } %>
 <form autocomplete="off" action="/interaction/<%= uid %>/login" method="post">
 	<% if (flash) { %>
-			<p style="color: red;"><%= flash %> </p>
+	<p style="color: red;"><%= flash %></p>
 	<% } %>
-	<input type="text" name="login" placeholder="Enter username" <% if (!params.login_hint) { %>autofocus="on"<% } else { %> value="<%= params.login_hint %>" <% } %>>
-	<input type="password" name="password" placeholder="Enter password" <% if (params.login_hint) { %>autofocus="on"<% } %>>
-	<div>
-		<input type="checkbox" name="remember_me" value="remember" />
-		<label for="remember_me">Remember me</label>
+
+	<div class="login-text-inputs">
+		<div class="mdc-text-field mdc-text-field--outlined mdc-theme--primary" data-mdc-auto-init="MDCTextField">
+			<input name="login" type="text" class="mdc-text-field__input" <% if (!params.login_hint) { %>autofocus="on"<% } else { %> value="<%= params.login_hint %>" <% } %> autocomplete="username"/>
+			<div class="mdc-notched-outline">
+				<div class="mdc-notched-outline__leading"></div>
+				<div class="mdc-notched-outline__notch">
+					<label for="tf-outlined" class="mdc-floating-label">Email</label>
+				</div>
+				<div class="mdc-notched-outline__trailing"></div>
+			</div>
+		</div>
+
+		<div class="mdc-text-field mdc-text-field--outlined mdc-theme--primary mdc-text-field--with-trailing-icon" data-mdc-auto-init="MDCTextField">
+			<input name="password" type="password" class="mdc-text-field__input" <% if (params.login_hint) { %>autofocus="on"<% } %> autocomplete="current-password" />
+			<button type="button" onclick="clickShowPassword()" id="show-password" class="mdc-icon-button" data-mdc-auto-init="MDCIconButtonToggle" aria-label="Show Password" aria-hidden="true" aria-pressed="false">
+				<i class="material-icons mdc-icon-button__icon">visibility_off</i>
+				<i class="material-icons mdc-icon-button__icon mdc-icon-button__icon--on">visibility</i>
+			</button>
+			<div class="mdc-notched-outline">
+				<div class="mdc-notched-outline__leading"></div>
+				<div class="mdc-notched-outline__notch">
+					<label for="tf-outlined" class="mdc-floating-label">Password</label>
+				</div>
+				<div class="mdc-notched-outline__trailing"></div>
+			</div>
+		</div>
 	</div>
-	<button type="submit" value="1" name="new_user" class="login login-submit">Register</button>
-	<button type="submit" class="login login-submit">Sign-in</button>
+
+	<div class="mdc-form-field login-checkbox">
+		<div class="mdc-checkbox" data-mdc-auto-init="MDCCheckbox">
+			<input type="checkbox" class="mdc-checkbox__native-control" id="remember_me" name="remember_me" value="remember" />
+			<div class="mdc-checkbox__background">
+				<svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24">
+					<path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59" />
+				</svg>
+				<div class="mdc-checkbox__mixedmark"></div>
+			</div>
+			<div class="mdc-checkbox__ripple" data-mdc-auto-init="MDCRipple"></div>
+		</div>
+		<label for="remember_me" name="remember_me" value="remember">Remember Me</label>
+	</div>
+
+	<div class="login-buttons">
+		<button type="submit" value="1" name="new_user" class="mdc-button altSubmit" data-mdc-auto-init="MDCRipple">
+			<span class="mdc-button__ripple"></span>
+			Sign-up instead
+		</button>
+
+		<button type="submit" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" >
+			<span class="mdc-button__ripple"></span>
+			Sign-in
+		</button>
+	</div>
 </form>

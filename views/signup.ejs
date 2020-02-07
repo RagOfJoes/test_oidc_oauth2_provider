@@ -1,11 +1,67 @@
 <form autocomplete="off" action="/interaction/<%= uid %>/signup" method="post">
 	<% if (flash) { %>
-			<p style="color: red;"><%= flash %> </p>
-    <% } %>
-    <input type="text" name="given_name" placeholder="Enter first name" autofocus="on">
-    <input type="text" name="family_name" placeholder="Enter last name">
-	<input type="text" name="email" placeholder="Enter email">
-	<input type="password" name="password" placeholder="Enter password">
-	<button type="submit" class="login login-submit">Sign-up</button>
-	<button type="submit" name="cancel_signup" value="1" class="login login-submit">Sign-in Instead</button>
+	<p style="color: red;"><%= flash %></p>
+	<% } %>
+
+	<div class="signup-text-inputs">
+		<div class="mdc-text-field mdc-text-field--outlined mdc-theme--primary" data-mdc-auto-init="MDCTextField">
+			<input name="given_name" type="text" class="mdc-text-field__input" autofocus="on" />
+			<div class="mdc-notched-outline">
+				<div class="mdc-notched-outline__leading"></div>
+				<div class="mdc-notched-outline__notch">
+					<label for="tf-outlined" class="mdc-floating-label">First Name</label>
+				</div>
+				<div class="mdc-notched-outline__trailing"></div>
+			</div>
+		</div>
+
+		<div class="mdc-text-field mdc-text-field--outlined mdc-theme--primary" data-mdc-auto-init="MDCTextField">
+			<input name="family_name" type="text" class="mdc-text-field__input" autofocus="on" />
+			<div class="mdc-notched-outline">
+				<div class="mdc-notched-outline__leading"></div>
+				<div class="mdc-notched-outline__notch">
+					<label for="tf-outlined" class="mdc-floating-label">Last Name</label>
+				</div>
+				<div class="mdc-notched-outline__trailing"></div>
+			</div>
+		</div>
+
+		<div class="mdc-text-field mdc-text-field--outlined mdc-theme--primary" data-mdc-auto-init="MDCTextField">
+			<input name="email" type="text" class="mdc-text-field__input" autofocus="on" autocomplete="username" />
+			<div class="mdc-notched-outline">
+				<div class="mdc-notched-outline__leading"></div>
+				<div class="mdc-notched-outline__notch">
+					<label for="tf-outlined" class="mdc-floating-label">Email</label>
+				</div>
+				<div class="mdc-notched-outline__trailing"></div>
+			</div>
+		</div>
+
+		<div class="mdc-text-field mdc-text-field--outlined mdc-theme--primary mdc-text-field--with-trailing-icon" data-mdc-auto-init="MDCTextField">
+			<input name="password" type="password" class="mdc-text-field__input" autocomplete="current-password" />
+			<button id="show-password" class="mdc-icon-button" data-mdc-auto-init="MDCIconButtonToggle" aria-label="Show Password" aria-hidden="true" aria-pressed="false">
+				<i class="material-icons mdc-icon-button__icon">visibility_off</i>
+				<i class="material-icons mdc-icon-button__icon mdc-icon-button__icon--on">visibility</i>
+			</button>
+			<div class="mdc-notched-outline">
+				<div class="mdc-notched-outline__leading"></div>
+				<div class="mdc-notched-outline__notch">
+					<label for="tf-outlined" class="mdc-floating-label">Password</label>
+				</div>
+				<div class="mdc-notched-outline__trailing"></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="signup-buttons">
+		<button type="submit" value="1" name="cancel_signup" class="mdc-button altSubmit" data-mdc-auto-init="MDCRipple">
+			<span class="mdc-button__ripple"></span>
+			Sign-in instead
+		</button>
+
+		<button type="submit" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple">
+			<span class="mdc-button__ripple"></span>
+			Sign-up
+		</button>
+	</div>
 </form>
