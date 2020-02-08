@@ -140,7 +140,6 @@ schema.statics = {
 					profile: {
 						sub: user.id,
 						name: user.name,
-						email: user.email,
 						given_name: user.given_name,
 						family_name: user.family_name
 					}
@@ -160,11 +159,11 @@ schema.statics = {
 	findAccount: async function(ctx, sub, token) {
 		try {
 			const user = await UserSchema.findById(sub, '-password');
-			if (!user) throw new Error('User not found');
+			if (!user) return undefined;
 			const account = UserSchema.getAccount(user);
 			return account;
 		} catch (e) {
-			throw new Error(e);
+			return undefined;
 		}
 	},
 	findByCredentials: async function(email, password) {
