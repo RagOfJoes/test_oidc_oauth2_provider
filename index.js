@@ -1,5 +1,5 @@
 // Deps
-"use strict";
+'use strict';
 process.env.NODE_ENV !== 'production' && require('dotenv/config');
 const url = require('url');
 const path = require('path');
@@ -70,12 +70,12 @@ let server = Server;
 	}
 
 	interactionsRoutes(app, provider);
-	app.use(provider.callback);
+	app.use('/idp', provider.callback);
 	server = app.listen(PORT, () => {
 		console.log(`OIDC app is listening on port ${PORT}, check its /.well-known/openid-configuration`);
 	});
 })().catch(err => {
 	if (server && server.listening) server.close();
-	console.error(err);
+	// console.error(err);
 	process.exitCode = 1;
 });
