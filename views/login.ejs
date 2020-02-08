@@ -14,7 +14,11 @@
 					id="Shape"
 					fill="#FBBC05"
 				/>
-				<path d="M361.7 151.1c5.8 32.7 4.5 66.8-4.7 98.8-8.5 29.3-24.6 56.5-47.1 77.2l-59.1-45.9c19.5-13.1 33.3-34.3 37.2-57.5H186.6c.1-24.2.1-48.4.1-72.6h175z" id="Shape" fill="#4285F4" />
+				<path
+					d="M361.7 151.1c5.8 32.7 4.5 66.8-4.7 98.8-8.5 29.3-24.6 56.5-47.1 77.2l-59.1-45.9c19.5-13.1 33.3-34.3 37.2-57.5H186.6c.1-24.2.1-48.4.1-72.6h175z"
+					id="Shape"
+					fill="#4285F4"
+				/>
 				<path
 					d="M81.4 222.2c7.8 22.9 22.8 43.2 42.6 57.1 12.4 8.7 26.6 14.9 41.4 17.9 14.6 3 29.7 2.6 44.4.1 14.6-2.6 28.7-7.9 41-16.2l59.1 45.9c-21.3 19.7-48 33.1-76.2 39.6-31.2 7.1-64.2 7.3-95.2-1-24.6-6.5-47.7-18.2-67.6-34.1-20.9-16.6-38.3-38-50.4-62 20.3-15.7 40.6-31.5 60.9-47.3z"
 					fill="#34A853"
@@ -28,14 +32,18 @@
 	- or -
 </div>
 <% } %>
-<form autocomplete="off" action="/interaction/<%= uid %>/login" method="post">
+<form class="fig-altSubmit" autocomplete="off" action="/interaction/<%= uid %>/login" method="post">
 	<% if (flash) { %>
-	<p style="color: red;"><%= flash %></p>
+	<div class="form-error login-error mdc-elevation--z4 mdc-ripple-surface" data-mdc-auto-init="MDCRipple">
+		<i class="material-icons mdc-icon-button__icon">error</i>
+		<p><%= flash %></p>
+	</div>
 	<% } %>
 
 	<div class="login-text-inputs">
 		<div class="mdc-text-field mdc-text-field--outlined mdc-theme--primary" data-mdc-auto-init="MDCTextField">
-			<input name="login" type="text" class="mdc-text-field__input" <% if (!params.login_hint) { %>autofocus="on"<% } else { %> value="<%= params.login_hint %>" <% } %> autocomplete="username"/>
+			<input required name="login" type="text" class="mdc-text-field__input" <% if (!params.login_hint) { %>autofocus="on"<% } else { %>
+			value="<%= params.login_hint %>" <% } %> autocomplete="username"/>
 			<div class="mdc-notched-outline">
 				<div class="mdc-notched-outline__leading"></div>
 				<div class="mdc-notched-outline__notch">
@@ -45,9 +53,21 @@
 			</div>
 		</div>
 
-		<div class="mdc-text-field mdc-text-field--outlined mdc-theme--primary mdc-text-field--with-trailing-icon" data-mdc-auto-init="MDCTextField">
-			<input name="password" type="password" class="mdc-text-field__input" <% if (params.login_hint) { %>autofocus="on"<% } %> autocomplete="current-password" />
-			<button type="button" onclick="clickShowPassword()" id="show-password" class="mdc-icon-button" data-mdc-auto-init="MDCIconButtonToggle" aria-label="Show Password" aria-hidden="true" aria-pressed="false">
+		<div
+			class="mdc-text-field mdc-text-field--outlined mdc-theme--primary mdc-text-field--with-trailing-icon"
+			data-mdc-auto-init="MDCTextField"
+		>
+			<input required name="password" type="password" class="mdc-text-field__input" <% if (params.login_hint) { %>autofocus="on"<% } %>
+			autocomplete="current-password" />
+			<button
+				type="button"
+				id="show-password"
+				class="mdc-icon-button"
+				data-mdc-auto-init="MDCIconButtonToggle"
+				aria-label="Show Password"
+				aria-hidden="true"
+				aria-pressed="false"
+			>
 				<i class="material-icons mdc-icon-button__icon">visibility_off</i>
 				<i class="material-icons mdc-icon-button__icon mdc-icon-button__icon--on">visibility</i>
 			</button>
@@ -81,7 +101,7 @@
 			Sign-up instead
 		</button>
 
-		<button type="submit" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" >
+		<button type="submit" name="login" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple">
 			<span class="mdc-button__ripple"></span>
 			Sign-in
 		</button>
