@@ -1,5 +1,5 @@
 <% if (locals.google) { %>
-<form autocomplete="off" action="/interaction/<%= uid %>/federated" method="post">
+<form autocomplete="off" action="/idp/interaction/<%= uid %>/federated" method="post">
 	<input type="hidden" name="provider" value="google" />
 	<button type="submit" class="google-button">
 		<span class="google-button__icon">
@@ -32,7 +32,7 @@
 	- or -
 </div>
 <% } %>
-<form class="fig-altSubmit" autocomplete="off" action="/interaction/<%= uid %>/login" method="post">
+<form class="fig-altSubmit" autocomplete="off" action="/idp/interaction/<%= uid %>/login" method="post">
 	<% if (flash) { %>
 	<div class="form-error login-error mdc-elevation--z4 mdc-ripple-surface" data-mdc-auto-init="MDCRipple">
 		<i class="material-icons mdc-icon-button__icon">error</i>
