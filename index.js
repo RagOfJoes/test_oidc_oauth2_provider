@@ -1,8 +1,10 @@
 // Deps
 'use strict';
 process.env.NODE_ENV !== 'production' && require('dotenv/config');
+const cors = require('cors');
 const url = require('url');
 const path = require('path');
+const cookieParser = require('cookie-parser');
 const { set } = require('lodash');
 const helmet = require('helmet');
 const { Server } = require('http');
@@ -24,6 +26,8 @@ if (process.env.NODE_ENV !== 'production') require('./lib/compileSCSS')();
 // Express
 const app = express();
 app.use(helmet());
+app.use(cookieParser());
+app.use(cors({ origin: '*', credentials: true }));
 // app.use(expressLogger);
 
 // Views setup
@@ -43,7 +47,6 @@ let server = Server;
 
 	if (process.env.NODE_ENV === 'production') {
 		// logger.debug('Production');
-
 		app.enable('trust proxy');
 		provider.proxy = true;
 		set(oidcConfig, 'cookies.short.secure', true);
