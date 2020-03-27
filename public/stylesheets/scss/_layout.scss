@@ -6,14 +6,17 @@
 @import 'select_account';
 
 body {
+	height: 100vh;
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	justify-content: center;
 	font-family: 'Roboto', sans-serif;
 }
 
 .container {
 	width: 100vw;
-	height: 100vh;
 	display: flex;
-	overflow: hidden;
 	align-items: center;
 	flex-direction: column;
 	justify-content: center;
