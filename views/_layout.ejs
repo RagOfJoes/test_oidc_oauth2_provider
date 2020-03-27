@@ -104,18 +104,6 @@
 					};
 					hideErrorButton.addEventListener('click', clickHideError);
 				}
-
-				// Prevent Submit onEnter
-				// Make sure this code gets executed after the DOM is loaded.
-				const form = document.querySelector('.fig-altSubmit');
-				const altSubmitButton = document.querySelector('.altSubmit');
-				form.addEventListener('keydown', event => {
-					if (event.key === 'Enter') altSubmitButton.value = '';
-				});
-
-				altSubmitButton.addEventListener('click', event => {
-					form.setAttribute('novalidate', true);
-				});
 			});
 		</script>
 	</body>
