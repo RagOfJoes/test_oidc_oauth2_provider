@@ -1,8 +1,17 @@
-GET /auth rp(code): http://localhost:8082/auth?client_id=<CLIENT_ID>&client_secret=<CLIENT_SECRET>&response_type=<ENUM: code, id_token, code id_token>&scope=<ENUM: openid, email, profile>&nonce=<OPAQUE_VALUE>
+# Test OAUTH2.0/OIDC implementation for Figure
 
-POST /token: http://localhost:8082/token
-                -   client_id -> Client ID
-                -   client_secret -> Client Secret
-                -   redirect_url -> Same URL from Endpoint above
-                -   code -> Authorization Code from Edpoint above   
-                -   grant_type -> ENUM: authorization_code, refresh_token, implicit(ONLY ON TRUSTED CLIENTS), password(ONLY ON TRUSTED CLIENTS)
+This is primarity template code for future implementations. It currently only has a MongoDB adapter, however, any DB can be used provided an adapter is created for it. (https://github.com/panva/node-oidc-provider/blob/master/example/my_adapter.js).
+
+## Features
+
+As of(4/16/2020) this only supports login, select_account, and sign_up. Future implementations can include a federated sign_up(https://openid.net/specs/openid-connect-federation-1_0.html), forget password, multi-factor, etc. These other implemetations can vary and is really up to the client how or if they are implemented.
+
+Google's Material Design Javascript library(https://github.com/material-components/material-components-web) is used to "prettify" the whole process but anything can be used in place of this. EJS is also used to render pages but anything can also be used in place of this. Though I would recommend keeping Front-End plugins to a minimum to prevent making this whole process from being anymore complicated.
+
+Also, as an additional security measurement rotating signing keys and following best practices for handling keys and environment variables should also be top of mind if pushing this to production.
+
+## References
+
+Refer to https://github.com/panva/node-oidc-provider/blob/master/docs/README.md for future updates on the underlying oidc implementation
+
+Also refer to https://oauth.net/2/ for any new best practices
